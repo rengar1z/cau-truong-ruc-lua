@@ -2,160 +2,167 @@ class Player {
     constructor(name, position, stats) {
         this.name = name;
         this.position = position;
-        
-        // Bê nguyên 19 chỉ số chuẩn vào đây
-        this.stats = {
-            tocDo: stats.tocDo || 10, sucBat: stats.sucBat || 10, theLuc: stats.theLuc || 10,
-            sucBen: stats.sucBen || 10, sut: stats.sut || 10, reDat: stats.reDat || 10,
-            chuyen: stats.chuyen || 10, danhDau: stats.danhDau || 10, doatBong: stats.doatBong || 10,
-            xoacBong: stats.xoacBong || 10, chuyenDai: stats.chuyenDai || 10, sutXa: stats.sutXa || 10,
-            phatDen: stats.phatDen || 10, phatGoc: stats.phatGoc || 10, daPhat: stats.daPhat || 10,
-            butPhat: stats.butPhat || 10, damBong: stats.damBong || 10, khongChien: stats.khongChien || 10,
-            cuuBong: stats.cuuBong || 10
-        };
+        this.stats = stats;
     }
 }
 
-// KHUÔN ĐỘI BÓNG
-class Team {
-    constructor(name, morale, players) {
-        this.name = name;
-        this.morale = morale; // Tinh thần thi đấu (Morale)
-        this.players = players;
-        this.score = 0;
-    }
-}
+const teamHome = {
+    name: "Nantes", score: 0,
+    mf: new Player("Freitas", "T.Vệ", { chuyen: 538, reDat: 604, tocDo: 624 }),
+    fw: new Player("Djordjevic", "T.Đạo", { sut: 624, sutXa: 558, tocDo: 500 })
+};
 
-// ==========================================
-// 2. TẠO DATA CẦU THỦ THỰC TẾ
-// ==========================================
-// Cầu thủ Đội Nhà (Nantes)
-const freitas = new Player("Freitas", "T.Vệ P", { chuyen: 538.2, reDat: 604.8, tocDo: 624.9 });
-const djordjevic = new Player("Djordjevic", "T.Đạo P", { sut: 624.9, sutXa: 558, danhDau: 468 });
+const teamAway = {
+    name: "Genk.vn", score: 0,
+    df: new Player("Kakadu", "Tr.Vệ", { xoacBong: 650, doatBong: 610, tocDo: 580 }),
+    gk: new Player("GK NPC", "T.Môn", { cuuBong: 630, sucBat: 600, damBong: 550 })
+};
 
-// Cầu thủ Đội Khách (Genk.vn)
-const kakadu = new Player("Kakadu", "Tr.Vệ", { xoacBong: 650, doatBong: 610, tocDo: 580 });
-const thuMonNPC = new Player("GK NPC", "T.Môn", { cuuBong: 630, sucBat: 600, damBong: 550 });
+// Hàm tạo khoảng trễ để chờ animation CSS chạy
+const delay = ms => new Promise(res => setTimeout(res, ms));
 
-// Ráp vào 2 đội bóng
-const teamHome = new Team("Nantes", 338, { mf: freitas, fw: djordjevic });
-const teamAway = new Team("Genk.vn", 498, { df: kakadu, gk: thuMonNPC });
-
-let matchTimer;
-
-// ==========================================
-// 3. LOGIC TRẬN ĐẤU & GIAO DIỆN
-// ==========================================
-function startMatch() {
+async function startMatch() {
     const btnPlay = document.querySelector(".btn-play");
     btnPlay.disabled = true;
-    
-    // Đẩy thông tin cơ bản lên UI HTML
-    document.getElementById("ui-home-name").innerText = teamHome.name;
-    document.getElementById("ui-away-name").innerText = teamAway.name;
-    document.getElementById("ui-home-morale").innerText = `Tinh thần thi đấu: ${teamHome.morale}`;
-    document.getElementById("ui-away-morale").innerText = `Tinh thần thi đấu: ${teamAway.morale}`;
-    
+
+    const atkDot = document.getElementById("ui-atk");
+    const defDot = document.getElementById("ui-def");
+    const gkDot = document.getElementById("ui-gk");
+    const ball = document.getElementById("ball");
+    const popup = document.getElementById("ui-action-popup");
     const logBox = document.getElementById("match-log");
-    const popupBox = document.getElementById("ui-action-popup");
-    
-    teamHome.score = 0;
-    teamAway.score = 0;
-    let inGameMinute = 0;
-    let inGameSecond = 0;
 
     logBox.innerHTML = "";
-    popupBox.style.visibility = "visible"; // Hiện popup màu xanh lên
+    teamHome.score = 0;
+    teamAway.score = 0;
+    document.getElementById("ui-home-score").innerText = 0;
+    document.getElementById("ui-away-score").innerText = 0;
 
-    // VÒNG LẶP THỜI GIAN THỰC
-    matchTimer = setInterval(() => {
-        // Cộng thời gian ngẫu nhiên (mỗi giây trôi qua 2-5 phút trong game)
-        inGameMinute += Math.floor(Math.random() * 4) + 2;
-        inGameSecond = Math.floor(Math.random() * 60);
-        
-        // Hết giờ
-        if (inGameMinute >= 90) {
-            clearInterval(matchTimer);
-            document.getElementById("ui-time").innerText = "90:00";
-            popupBox.innerHTML = `<div style="width:100%; text-align:center; font-size: 20px; font-weight:bold;">HẾT GIỜ!</div>`;
-            btnPlay.disabled = false;
-            return;
-        }
+    // Gán tên hiển thị
+    document.getElementById("name-atk").innerText = teamHome.mf.name;
+    document.getElementById("name-def").innerText = teamAway.df.name;
+    document.getElementById("name-gk").innerText = teamAway.gk.name;
 
-        // Cập nhật đồng hồ và tỷ số
-        document.getElementById("ui-time").innerText = `${inGameMinute < 10 ? '0'+inGameMinute : inGameMinute}:${inGameSecond < 10 ? '0'+inGameSecond : inGameSecond}`;
-        document.getElementById("ui-home-score").innerText = teamHome.score;
-        document.getElementById("ui-away-score").innerText = teamAway.score;
+    // Chạy giả lập 3 tình huống tấn công
+    for (let minute = 15; minute <= 85; minute += 30) {
+        document.getElementById("ui-time").innerText = `${minute}:00`;
+        popup.style.visibility = "hidden";
 
-        // ----------------------------------------------------
-        // MÔ PHỎNG PHA BÓNG DỰA TRÊN FULL 19 CHỈ SỐ
-        // ----------------------------------------------------
-        let attacker = teamHome.players.mf; // Tiền vệ cầm bóng
-        let defender = teamAway.players.df; // Trung vệ cản phá
-        
-        // GỘP CHỈ SỐ TẤN CÔNG: Rê dắt + Tốc độ
-        let atkStat = attacker.stats.reDat + attacker.stats.tocDo;
-        // GỘP CHỈ SỐ PHÒNG THỦ: Xoạc bóng + Đoạt bóng
-        let defStat = defender.stats.xoacBong + defender.stats.doatBong;
+        // =====================================
+        // SETUP VỊ TRÍ BAN ĐẦU
+        // =====================================
+        atkDot.style.transition = "none";
+        defDot.style.transition = "none";
+        gkDot.style.transition = "none";
+        ball.style.transition = "none";
 
-        // Tính Tỷ lệ % chiến thắng
-        let totalPower = atkStat + defStat;
-        let winChance = Math.floor((atkStat / totalPower) * 100); 
-        
-        // Đổ dữ liệu ra Popup Xanh lá y hệt ảnh
-        popupBox.innerHTML = `
-            <div class="player-col">
-                <strong>${attacker.name}</strong>
-                Vị trí: ${attacker.position}<br>
-                Rê dắt: ${attacker.stats.reDat.toFixed(1)}<br>
-                Tốc độ: ${attacker.stats.tocDo.toFixed(1)}
-            </div>
-            <div class="action-center">
-                <div class="action-title">Cơ Hội Qua Người</div>
-                <div class="action-desc">Tỷ lệ thành công</div>
-                <div class="action-percent">${winChance}%</div>
-            </div>
-            <div class="player-col">
-                <strong>${defender.name}</strong>
-                Vị trí: ${defender.position}<br>
-                Xoạc bóng: ${defender.stats.xoacBong.toFixed(1)}<br>
-                Đoạt bóng: ${defender.stats.doatBong.toFixed(1)}
-            </div>
-        `;
+        // Attacker ở sân nhà, Defender ở giữa sân, GK ở cầu môn phải
+        atkDot.style.left = "20%"; atkDot.style.top = "70%";
+        defDot.style.left = "60%"; defDot.style.top = "50%";
+        gkDot.style.left = "95%"; gkDot.style.top = "50%";
+        ball.style.left = "22%"; ball.style.top = "72%";
 
-        // Đổ xúc xắc (Roll từ 1-100) để quyết định kết quả
-        let roll = Math.floor(Math.random() * 100) + 1;
-        let isSuccess = roll <= winChance;
+        await delay(100); // Đợi DOM cập nhật
 
-        let turnLog = `<p><strong>⏱ ${inGameMinute}':</strong> `;
-        
-        if (isSuccess) {
-            turnLog += `<span class="text-blue">${attacker.name}</span> dùng Tốc độ và Rê dắt vượt mặt ${defender.name} thành công (Tỷ lệ: ${winChance}%, Đổ xúc xắc ra số: ${roll})!`;
-            
-            // Nếu qua người thành công, tự động có cơ hội sút đối mặt Thủ môn
-            let striker = teamHome.players.fw;
-            let gk = teamAway.players.gk;
-            
-            let shotStat = striker.stats.sut + striker.stats.sutXa;
-            let saveStat = gk.stats.cuuBong + gk.stats.sucBat;
-            let goalChance = Math.floor((shotStat / (shotStat + saveStat)) * 100);
-            
-            let shotRoll = Math.floor(Math.random() * 100) + 1;
-            if(shotRoll <= goalChance) {
-                turnLog += `<br>🔥 <span class="text-green">VÀOOOO!!!</span> ${striker.name} vung chân sút cháy lưới ${gk.name} (Tỷ lệ sút vào: ${goalChance}%)!`;
-                teamHome.score++;
-            } else {
-                turnLog += `<br>🛡️ Không vào! ${gk.name} đã bay người xuất thần cản phá cú sút của ${striker.name}.`;
-            }
+        // Bật lại animation
+        atkDot.style.transition = "all 1.5s linear";
+        defDot.style.transition = "all 1.5s linear";
+        ball.style.transition = "all 1.5s linear";
 
-        } else {
-            turnLog += `<span class="text-red">${defender.name}</span> đã đọc tình huống xuất sắc, tung cú xoạc bóng chặn đứng đợt tấn công (Tỷ lệ bị qua người chỉ là: ${winChance}%, Đổ xúc xắc ra số: ${roll}).`;
-        }
-        turnLog += `</p>`;
-
-        // In bình luận và tự động cuộn
-        logBox.innerHTML += turnLog;
+        logBox.innerHTML += `<p>⏱ Phút ${minute}: ${teamHome.mf.name} dẫn bóng lên...</p>`;
         logBox.scrollTop = logBox.scrollHeight;
 
-    }, 2000); // Mỗi 2 giây cập nhật 1 tình huống
+        // =====================================
+        // ACTION 1: TRANH CHẤP GIỮA SÂN
+        // =====================================
+        // Cả 2 cùng chạy đến tọa độ va chạm ở giữa sân
+        atkDot.style.left = "45%"; atkDot.style.top = "50%";
+        defDot.style.left = "50%"; defDot.style.top = "50%";
+        ball.style.left = "48%"; ball.style.top = "52%";
+        
+        await delay(1500); // Chờ 2 cầu thủ chạy đến nơi
+
+        let atkStat = teamHome.mf.stats.reDat + teamHome.mf.stats.tocDo;
+        let defStat = teamAway.df.stats.xoacBong + teamAway.df.stats.doatBong;
+        let winChance = Math.floor((atkStat / (atkStat + defStat)) * 100); 
+
+        popup.innerHTML = `
+            <div class="player-col"><strong>${teamHome.mf.name}</strong>Rê dắt + Tốc độ</div>
+            <div class="action-center">
+                <div class="action-title">Đối Mặt</div>
+                <div class="action-percent">${winChance}%</div>
+            </div>
+            <div class="player-col"><strong>${teamAway.df.name}</strong>Xoạc + Đoạt bóng</div>
+        `;
+        popup.style.visibility = "visible";
+        
+        await delay(2000); // Dừng hình 2 giây để đọc Popup
+        popup.style.visibility = "hidden";
+
+        let roll = Math.floor(Math.random() * 100) + 1;
+        
+        if (roll <= winChance) {
+            // THẮNG: Attacker chạy tiếp, Defender rớt lại
+            logBox.innerHTML += `<p style="color:#3498db">🔥 Lừa qua người thành công! Cơ hội dứt điểm!</p>`;
+            document.getElementById("name-atk").innerText = teamHome.fw.name; // Đổi người cầm bóng thành Tiền Đạo
+            
+            atkDot.style.left = "75%"; atkDot.style.top = "50%";
+            ball.style.left = "78%"; ball.style.top = "50%";
+            defDot.style.left = "45%"; // Hậu vệ lỡ đà
+
+            await delay(1500); // Chờ Tiền đạo chạy tới sát vòng cấm
+
+            // =====================================
+            // ACTION 2: DỨT ĐIỂM
+            // =====================================
+            let shotStat = teamHome.fw.stats.sut + teamHome.fw.stats.sutXa;
+            let saveStat = teamAway.gk.stats.cuuBong + teamAway.gk.stats.sucBat;
+            let goalChance = Math.floor((shotStat / (shotStat + saveStat)) * 100);
+
+            popup.innerHTML = `
+                <div class="player-col"><strong>${teamHome.fw.name}</strong>Sút xa</div>
+                <div class="action-center">
+                    <div class="action-title">Dứt Điểm</div>
+                    <div class="action-percent">${goalChance}%</div>
+                </div>
+                <div class="player-col"><strong>${teamAway.gk.name}</strong>Cứu bóng</div>
+            `;
+            popup.style.visibility = "visible";
+            
+            await delay(2000);
+            popup.style.visibility = "hidden";
+
+            let shotRoll = Math.floor(Math.random() * 100) + 1;
+            
+            ball.style.transition = "all 0.5s ease-out"; // Bóng bay nhanh
+            gkDot.style.transition = "all 0.5s ease-out"; // Thủ môn đổ người
+
+            if (shotRoll <= goalChance) {
+                // VÀO: Bóng bay thẳng lưới, GK bay sai hướng
+                ball.style.left = "100%"; ball.style.top = "50%";
+                gkDot.style.top = "60%"; 
+                teamHome.score++;
+                document.getElementById("ui-home-score").innerText = teamHome.score;
+                logBox.innerHTML += `<p class="text-green">⚽ VÀOOOOO!!!</p>`;
+            } else {
+                // TRƯỢT: GK bắt gọn bóng
+                ball.style.left = "93%"; ball.style.top = "50%";
+                gkDot.style.left = "93%"; gkDot.style.top = "50%";
+                logBox.innerHTML += `<p>🛡️ Thủ môn cản phá xuất thần!</p>`;
+            }
+            
+        } else {
+            // THUA: Defender cướp bóng
+            logBox.innerHTML += `<p style="color:#e74c3c">❌ Bị xoạc mất bóng!</p>`;
+            ball.style.left = "48%"; ball.style.top = "50%"; // Bóng nằm trong chân Defender
+            atkDot.style.left = "42%"; // Attacker dội ngược lại
+        }
+        
+        logBox.scrollTop = logBox.scrollHeight;
+        await delay(2000); // Dừng một chút trước khi sang pha bóng tiếp theo
+    }
+
+    document.getElementById("ui-time").innerText = "90:00";
+    btnPlay.disabled = false;
+    btnPlay.innerText = "ĐÁ LẠI TỪ ĐẦU";
 }

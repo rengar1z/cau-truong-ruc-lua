@@ -1,8 +1,9 @@
-// 1. KHUÔN CẦU THỦ VỚI 19 CHỈ SỐ
 class Player {
     constructor(name, position, stats) {
         this.name = name;
         this.position = position;
+        
+        // Bê nguyên 19 chỉ số chuẩn vào đây
         this.stats = {
             tocDo: stats.tocDo || 10, sucBat: stats.sucBat || 10, theLuc: stats.theLuc || 10,
             sucBen: stats.sucBen || 10, sut: stats.sut || 10, reDat: stats.reDat || 10,
@@ -15,59 +16,146 @@ class Player {
     }
 }
 
-// 2. KHỞI TẠO DATA CẦU THỦ THỰC TẾ
-// Tiền đạo (Lấy đúng số của CR7 trong ảnh)
-const cr7 = new Player("CR7", "T.Đạo", {
-    tocDo: 624.9, reDat: 604.8, sut: 624.9, butPhat: 558, theLuc: 522
-});
-
-// Hậu vệ & Thủ môn đối phương (Tạo số liệu giả lập để test)
-const ramos = new Player("S. Ramos", "Tr.Vệ", {
-    xoacBong: 580, doatBong: 610, tocDo: 500, theLuc: 500
-});
-
-const casillas = new Player("Casillas", "T.Môn", {
-    cuuBong: 630, sucBat: 600, damBong: 550
-});
-
-// 3. HÀM MÔ PHỎNG TRẬN ĐẤU
-function startMatch() {
-    const logBox = document.getElementById("match-log");
-    logBox.innerHTML = ""; // Xóa log cũ
-    
-    let htmlLog = `<p class="text-yellow">▶ TRỌNG TÀI THỔI CÒI BẮT ĐẦU TRẬN ĐẤU!</p>`;
-    
-    // Hàm tạo độ lệch phong độ ngẫu nhiên từ 80% đến 120%
-    const getRNG = () => (Math.random() * 0.4 + 0.8);
-
-    // --- PHA 1: TIỀN ĐẠO ĐỐI MẶT HẬU VỆ ---
-    htmlLog += `<p>Phút 15: <span class="text-blue">${cr7.name}</span> đang cầm bóng lao về phía khung thành...</p>`;
-    
-    // Tính toán Tấn công (Tốc độ + Rê dắt + Bứt phát) vs Phòng thủ (Đoạt bóng + Xoạc bóng + Tốc độ)
-    let attackPower = (cr7.stats.tocDo + cr7.stats.reDat + cr7.stats.butPhat) * getRNG();
-    let defensePower = (ramos.stats.doatBong + ramos.stats.xoacBong + ramos.stats.tocDo) * getRNG();
-
-    if (attackPower > defensePower) {
-        htmlLog += `<p>🔥 Bằng kỹ thuật cá nhân, <span class="text-blue">${cr7.name}</span> đã đi bóng qua mặt <span class="text-red">${ramos.name}</span>!</p>`;
-        
-        // --- PHA 2: ĐỐI MẶT THỦ MÔN ---
-        htmlLog += `<p>Phút 16: Không bị ai kèm, <span class="text-blue">${cr7.name}</span> vung chân dứt điểm!</p>`;
-        
-        // Tính toán Sút (Sút + Thể lực) vs Bắt bóng (Cứu bóng + Sức bật)
-        let shotPower = (cr7.stats.sut * 1.5 + cr7.stats.theLuc) * getRNG();
-        let savePower = (casillas.stats.cuuBong * 1.5 + casillas.stats.sucBat) * getRNG();
-
-        if (shotPower > savePower) {
-            htmlLog += `<p class="text-green">⚽ VÀOOOOO!!! Cú sút quá mạnh khiến <span class="text-red">${casillas.name}</span> bó tay! 1-0 cho đội nhà!</p>`;
-        } else {
-            htmlLog += `<p>🛡️ KHÔNG VÀO! <span class="text-red">${casillas.name}</span> bay người cứu thua xuất thần! Một pha cản phá khó tin!</p>`;
-        }
-    } else {
-        htmlLog += `<p>❌ Không qua được! <span class="text-red">${ramos.name}</span> đã có một pha xoạc bóng cực kỳ chính xác để đoạt lại quyền kiểm soát.</p>`;
+// KHUÔN ĐỘI BÓNG
+class Team {
+    constructor(name, morale, players) {
+        this.name = name;
+        this.morale = morale; // Tinh thần thi đấu (Morale)
+        this.players = players;
+        this.score = 0;
     }
+}
 
-    htmlLog += `<p class="text-yellow">▶ HẾT TÌNH HUỐNG.</p>`;
+// ==========================================
+// 2. TẠO DATA CẦU THỦ THỰC TẾ
+// ==========================================
+// Cầu thủ Đội Nhà (Nantes)
+const freitas = new Player("Freitas", "T.Vệ P", { chuyen: 538.2, reDat: 604.8, tocDo: 624.9 });
+const djordjevic = new Player("Djordjevic", "T.Đạo P", { sut: 624.9, sutXa: 558, danhDau: 468 });
+
+// Cầu thủ Đội Khách (Genk.vn)
+const kakadu = new Player("Kakadu", "Tr.Vệ", { xoacBong: 650, doatBong: 610, tocDo: 580 });
+const thuMonNPC = new Player("GK NPC", "T.Môn", { cuuBong: 630, sucBat: 600, damBong: 550 });
+
+// Ráp vào 2 đội bóng
+const teamHome = new Team("Nantes", 338, { mf: freitas, fw: djordjevic });
+const teamAway = new Team("Genk.vn", 498, { df: kakadu, gk: thuMonNPC });
+
+let matchTimer;
+
+// ==========================================
+// 3. LOGIC TRẬN ĐẤU & GIAO DIỆN
+// ==========================================
+function startMatch() {
+    const btnPlay = document.querySelector(".btn-play");
+    btnPlay.disabled = true;
     
-    // Đẩy kết quả ra màn hình
-    logBox.innerHTML = htmlLog;
+    // Đẩy thông tin cơ bản lên UI HTML
+    document.getElementById("ui-home-name").innerText = teamHome.name;
+    document.getElementById("ui-away-name").innerText = teamAway.name;
+    document.getElementById("ui-home-morale").innerText = `Tinh thần thi đấu: ${teamHome.morale}`;
+    document.getElementById("ui-away-morale").innerText = `Tinh thần thi đấu: ${teamAway.morale}`;
+    
+    const logBox = document.getElementById("match-log");
+    const popupBox = document.getElementById("ui-action-popup");
+    
+    teamHome.score = 0;
+    teamAway.score = 0;
+    let inGameMinute = 0;
+    let inGameSecond = 0;
+
+    logBox.innerHTML = "";
+    popupBox.style.visibility = "visible"; // Hiện popup màu xanh lên
+
+    // VÒNG LẶP THỜI GIAN THỰC
+    matchTimer = setInterval(() => {
+        // Cộng thời gian ngẫu nhiên (mỗi giây trôi qua 2-5 phút trong game)
+        inGameMinute += Math.floor(Math.random() * 4) + 2;
+        inGameSecond = Math.floor(Math.random() * 60);
+        
+        // Hết giờ
+        if (inGameMinute >= 90) {
+            clearInterval(matchTimer);
+            document.getElementById("ui-time").innerText = "90:00";
+            popupBox.innerHTML = `<div style="width:100%; text-align:center; font-size: 20px; font-weight:bold;">HẾT GIỜ!</div>`;
+            btnPlay.disabled = false;
+            return;
+        }
+
+        // Cập nhật đồng hồ và tỷ số
+        document.getElementById("ui-time").innerText = `${inGameMinute < 10 ? '0'+inGameMinute : inGameMinute}:${inGameSecond < 10 ? '0'+inGameSecond : inGameSecond}`;
+        document.getElementById("ui-home-score").innerText = teamHome.score;
+        document.getElementById("ui-away-score").innerText = teamAway.score;
+
+        // ----------------------------------------------------
+        // MÔ PHỎNG PHA BÓNG DỰA TRÊN FULL 19 CHỈ SỐ
+        // ----------------------------------------------------
+        let attacker = teamHome.players.mf; // Tiền vệ cầm bóng
+        let defender = teamAway.players.df; // Trung vệ cản phá
+        
+        // GỘP CHỈ SỐ TẤN CÔNG: Rê dắt + Tốc độ
+        let atkStat = attacker.stats.reDat + attacker.stats.tocDo;
+        // GỘP CHỈ SỐ PHÒNG THỦ: Xoạc bóng + Đoạt bóng
+        let defStat = defender.stats.xoacBong + defender.stats.doatBong;
+
+        // Tính Tỷ lệ % chiến thắng
+        let totalPower = atkStat + defStat;
+        let winChance = Math.floor((atkStat / totalPower) * 100); 
+        
+        // Đổ dữ liệu ra Popup Xanh lá y hệt ảnh
+        popupBox.innerHTML = `
+            <div class="player-col">
+                <strong>${attacker.name}</strong>
+                Vị trí: ${attacker.position}<br>
+                Rê dắt: ${attacker.stats.reDat.toFixed(1)}<br>
+                Tốc độ: ${attacker.stats.tocDo.toFixed(1)}
+            </div>
+            <div class="action-center">
+                <div class="action-title">Cơ Hội Qua Người</div>
+                <div class="action-desc">Tỷ lệ thành công</div>
+                <div class="action-percent">${winChance}%</div>
+            </div>
+            <div class="player-col">
+                <strong>${defender.name}</strong>
+                Vị trí: ${defender.position}<br>
+                Xoạc bóng: ${defender.stats.xoacBong.toFixed(1)}<br>
+                Đoạt bóng: ${defender.stats.doatBong.toFixed(1)}
+            </div>
+        `;
+
+        // Đổ xúc xắc (Roll từ 1-100) để quyết định kết quả
+        let roll = Math.floor(Math.random() * 100) + 1;
+        let isSuccess = roll <= winChance;
+
+        let turnLog = `<p><strong>⏱ ${inGameMinute}':</strong> `;
+        
+        if (isSuccess) {
+            turnLog += `<span class="text-blue">${attacker.name}</span> dùng Tốc độ và Rê dắt vượt mặt ${defender.name} thành công (Tỷ lệ: ${winChance}%, Đổ xúc xắc ra số: ${roll})!`;
+            
+            // Nếu qua người thành công, tự động có cơ hội sút đối mặt Thủ môn
+            let striker = teamHome.players.fw;
+            let gk = teamAway.players.gk;
+            
+            let shotStat = striker.stats.sut + striker.stats.sutXa;
+            let saveStat = gk.stats.cuuBong + gk.stats.sucBat;
+            let goalChance = Math.floor((shotStat / (shotStat + saveStat)) * 100);
+            
+            let shotRoll = Math.floor(Math.random() * 100) + 1;
+            if(shotRoll <= goalChance) {
+                turnLog += `<br>🔥 <span class="text-green">VÀOOOO!!!</span> ${striker.name} vung chân sút cháy lưới ${gk.name} (Tỷ lệ sút vào: ${goalChance}%)!`;
+                teamHome.score++;
+            } else {
+                turnLog += `<br>🛡️ Không vào! ${gk.name} đã bay người xuất thần cản phá cú sút của ${striker.name}.`;
+            }
+
+        } else {
+            turnLog += `<span class="text-red">${defender.name}</span> đã đọc tình huống xuất sắc, tung cú xoạc bóng chặn đứng đợt tấn công (Tỷ lệ bị qua người chỉ là: ${winChance}%, Đổ xúc xắc ra số: ${roll}).`;
+        }
+        turnLog += `</p>`;
+
+        // In bình luận và tự động cuộn
+        logBox.innerHTML += turnLog;
+        logBox.scrollTop = logBox.scrollHeight;
+
+    }, 2000); // Mỗi 2 giây cập nhật 1 tình huống
 }

@@ -43,6 +43,10 @@ async function startMatch() {
     document.getElementById("name-def").innerText = teamAway.df.name;
     document.getElementById("name-gk").innerText = teamAway.gk.name;
 
+    const imgAtk = document.getElementById("img-atk");
+    const imgDef = document.getElementById("img-def");
+    const imgGk = document.getElementById("img-gk");
+
     // Chạy giả lập 3 tình huống tấn công
     for (let minute = 15; minute <= 85; minute += 30) {
         document.getElementById("ui-time").innerText = `${minute}:00`;
@@ -61,6 +65,9 @@ async function startMatch() {
         defDot.style.left = "60%"; defDot.style.top = "50%";
         gkDot.style.left = "95%"; gkDot.style.top = "50%";
         ball.style.left = "22%"; ball.style.top = "72%";
+
+        imgAtk.src = "images/chay.gif"; // Trạng thái dẫn bóng
+        imgDef.src = "images/chay.gif"; // Trạng thái lao ra cản
 
         await delay(100); // Đợi DOM cập nhật
 

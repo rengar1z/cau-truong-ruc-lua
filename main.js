@@ -1,87 +1,73 @@
-// 1. Dữ liệu cầu thủ
-let player = {
-    name: "Ibrahimovic",
-    stars: 4,
-    trainingPoints: 500, // Điểm để cộng vào chỉ số (Giống Đặc huấn)
+// 1. KHUÔN CẦU THỦ VỚI 19 CHỈ SỐ
+class Player {
+    constructor(name, position, stats) {
+        this.name = name;
+        this.position = position;
+        this.stats = {
+            tocDo: stats.tocDo || 10, sucBat: stats.sucBat || 10, theLuc: stats.theLuc || 10,
+            sucBen: stats.sucBen || 10, sut: stats.sut || 10, reDat: stats.reDat || 10,
+            chuyen: stats.chuyen || 10, danhDau: stats.danhDau || 10, doatBong: stats.doatBong || 10,
+            xoacBong: stats.xoacBong || 10, chuyenDai: stats.chuyenDai || 10, sutXa: stats.sutXa || 10,
+            phatDen: stats.phatDen || 10, phatGoc: stats.phatGoc || 10, daPhat: stats.daPhat || 10,
+            butPhat: stats.butPhat || 10, damBong: stats.damBong || 10, khongChien: stats.khongChien || 10,
+            cuuBong: stats.cuuBong || 10
+        };
+    }
+}
+
+// 2. KHỞI TẠO DATA CẦU THỦ THỰC TẾ
+// Tiền đạo (Lấy đúng số của CR7 trong ảnh)
+const cr7 = new Player("CR7", "T.Đạo", {
+    tocDo: 624.9, reDat: 604.8, sut: 624.9, butPhat: 558, theLuc: 522
+});
+
+// Hậu vệ & Thủ môn đối phương (Tạo số liệu giả lập để test)
+const ramos = new Player("S. Ramos", "Tr.Vệ", {
+    xoacBong: 580, doatBong: 610, tocDo: 500, theLuc: 500
+});
+
+const casillas = new Player("Casillas", "T.Môn", {
+    cuuBong: 630, sucBat: 600, damBong: 550
+});
+
+// 3. HÀM MÔ PHỎNG TRẬN ĐẤU
+function startMatch() {
+    const logBox = document.getElementById("match-log");
+    logBox.innerHTML = ""; // Xóa log cũ
     
-    // Khai báo các chỉ số: giá trị hiện tại và giới hạn tối đa (max)
-    stats: {
-        speed: { label: "Tốc độ", value: 35.8, max: 94.6 },
-        jumping: { label: "Sức bật", value: 35.0, max: 81.2 },
-        stamina: { label: "Thể lực", value: 42.4, max: 106.5 },
-        shooting: { label: "Sút xa", value: 50.1, max: 101.5 },
-        dribbling: { label: "Rê dắt", value: 51.4, max: 104.6 },
-        passing: { label: "Chuyền", value: 40.4, max: 89.2 }
-    }
-};
+    let htmlLog = `<p class="text-yellow">▶ TRỌNG TÀI THỔI CÒI BẮT ĐẦU TRẬN ĐẤU!</p>`;
+    
+    // Hàm tạo độ lệch phong độ ngẫu nhiên từ 80% đến 120%
+    const getRNG = () => (Math.random() * 0.4 + 0.8);
 
-// 2. Hàm tính tổng Thực lực
-function calculateTotalPower() {
-    let total = 0;
-    for (let key in player.stats) {
-        total += player.stats[key].value;
-    }
-    return (total).toFixed(1);
-}
+    // --- PHA 1: TIỀN ĐẠO ĐỐI MẶT HẬU VỆ ---
+    htmlLog += `<p>Phút 15: <span class="text-blue">${cr7.name}</span> đang cầm bóng lao về phía khung thành...</p>`;
+    
+    // Tính toán Tấn công (Tốc độ + Rê dắt + Bứt phát) vs Phòng thủ (Đoạt bóng + Xoạc bóng + Tốc độ)
+    let attackPower = (cr7.stats.tocDo + cr7.stats.reDat + cr7.stats.butPhat) * getRNG();
+    let defensePower = (ramos.stats.doatBong + ramos.stats.xoacBong + ramos.stats.tocDo) * getRNG();
 
-// 3. Hàm Render giao diện
-function renderUI() {
-    // Cập nhật thông tin cơ bản
-    document.getElementById("ui-train-points").innerText = player.trainingPoints;
-    document.getElementById("ui-total-power").innerText = calculateTotalPower();
-
-    const statsContainer = document.getElementById("ui-stats-container");
-    statsContainer.innerHTML = ""; // Xóa dữ liệu cũ
-
-    // Lặp qua từng chỉ số để tạo HTML
-    for (let key in player.stats) {
-        let stat = player.stats[key];
+    if (attackPower > defensePower) {
+        htmlLog += `<p>🔥 Bằng kỹ thuật cá nhân, <span class="text-blue">${cr7.name}</span> đã đi bóng qua mặt <span class="text-red">${ramos.name}</span>!</p>`;
         
-        // Tính % để vẽ thanh bar màu xanh lá
-        let percent = (stat.value / stat.max) * 100;
-
-        // HTML cho 1 hàng chỉ số
-        let row = document.createElement("div");
-        row.className = "stat-row";
+        // --- PHA 2: ĐỐI MẶT THỦ MÔN ---
+        htmlLog += `<p>Phút 16: Không bị ai kèm, <span class="text-blue">${cr7.name}</span> vung chân dứt điểm!</p>`;
         
-        // Nút cộng điểm bị vô hiệu hóa nếu hết điểm huấn luyện hoặc đã max chỉ số
-        let disableBtn = (player.trainingPoints <= 0 || stat.value >= stat.max) ? "disabled" : "";
+        // Tính toán Sút (Sút + Thể lực) vs Bắt bóng (Cứu bóng + Sức bật)
+        let shotPower = (cr7.stats.sut * 1.5 + cr7.stats.theLuc) * getRNG();
+        let savePower = (casillas.stats.cuuBong * 1.5 + casillas.stats.sucBat) * getRNG();
 
-        row.innerHTML = `
-            <div class="stat-name">${stat.label}</div>
-            <div class="stat-bar-bg">
-                <div class="stat-bar-fill" style="width: ${percent}%"></div>
-            </div>
-            <div class="stat-value">${stat.value.toFixed(1)}</div>
-            <button class="btn-train" ${disableBtn} onclick="trainStat('${key}')">+</button>
-        `;
-
-        statsContainer.appendChild(row);
-    }
-}
-
-// 4. Hàm xử lý khi bấm nút "Cộng điểm" (+)
-function trainStat(statKey) {
-    let stat = player.stats[statKey];
-    const cost = 10; // Mỗi lần bấm tốn 10 điểm huấn luyện
-    const gain = 1.5; // Mỗi lần bấm tăng 1.5 chỉ số
-
-    if (player.trainingPoints >= cost && stat.value < stat.max) {
-        // Trừ điểm và tăng chỉ số
-        player.trainingPoints -= cost;
-        stat.value += gain;
-
-        // Đảm bảo không vượt quá Max
-        if (stat.value > stat.max) {
-            stat.value = stat.max;
+        if (shotPower > savePower) {
+            htmlLog += `<p class="text-green">⚽ VÀOOOOO!!! Cú sút quá mạnh khiến <span class="text-red">${casillas.name}</span> bó tay! 1-0 cho đội nhà!</p>`;
+        } else {
+            htmlLog += `<p>🛡️ KHÔNG VÀO! <span class="text-red">${casillas.name}</span> bay người cứu thua xuất thần! Một pha cản phá khó tin!</p>`;
         }
-
-        // Gọi lại hàm render để cập nhật màn hình lập tức
-        renderUI();
     } else {
-        alert("Không đủ điểm huấn luyện hoặc chỉ số đã đạt giới hạn Max!");
+        htmlLog += `<p>❌ Không qua được! <span class="text-red">${ramos.name}</span> đã có một pha xoạc bóng cực kỳ chính xác để đoạt lại quyền kiểm soát.</p>`;
     }
-}
 
-// Khởi chạy lần đầu khi vừa mở trang
-renderUI();
+    htmlLog += `<p class="text-yellow">▶ HẾT TÌNH HUỐNG.</p>`;
+    
+    // Đẩy kết quả ra màn hình
+    logBox.innerHTML = htmlLog;
+}

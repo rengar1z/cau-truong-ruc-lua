@@ -3,29 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cầu Trường Rực Lửa - Match Engine</title>
+    <title>Cầu Trường Rực Lửa - Match Engine v2</title>
     <style>
         body { font-family: Tahoma, sans-serif; background-color: #2c3e50; color: #fff; padding: 20px; }
-        .container { max-width: 600px; margin: 0 auto; background: #34495e; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        .header { text-align: center; margin-bottom: 20px; color: #f1c40f; }
-        .btn-play { display: block; width: 100%; padding: 15px; background: #e74c3c; color: white; border: none; font-size: 18px; font-weight: bold; border-radius: 5px; cursor: pointer; transition: 0.3s; }
-        .btn-play:hover { background: #c0392b; }
+        .container { max-width: 700px; margin: 0 auto; background: #27ae60; padding: 10px; border-radius: 8px; border: 2px solid #fff; }
         
-        #match-log { margin-top: 20px; background: #1a252f; padding: 15px; border-radius: 5px; min-height: 200px; font-size: 15px; line-height: 1.6; border-left: 4px solid #2ecc71; }
-        .text-blue { color: #3498db; } /* Đội nhà */
-        .text-red { color: #e74c3c; } /* Đội khách */
-        .text-green { color: #2ecc71; font-weight: bold; } /* Bàn thắng */
-        .text-yellow { color: #f1c40f; } /* Hành động */
+        /* Bảng tỷ số */
+        .scoreboard { background: #111; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; border-radius: 5px; margin-bottom: 5px; border: 2px solid #555; }
+        .team-name { font-size: 20px; font-weight: bold; width: 30%; text-align: center; }
+        .score-center { text-align: center; width: 40%; }
+        .time { font-size: 14px; color: #aaa; margin-bottom: 5px; }
+        .score { font-size: 28px; font-weight: bold; color: #f1c40f; }
+
+        /* Thanh Tinh thần thi đấu */
+        .morale-container { display: flex; justify-content: space-between; background: #000; padding: 2px; margin-bottom: 15px; font-size: 12px; text-align: center; border: 1px solid #333; }
+        .morale-bar { padding: 3px 0; color: white; width: 50%; font-weight: bold; }
+        .morale-red { background: #c0392b; border-right: 1px solid #000; }
+        .morale-blue { background: #2980b9; }
+
+        /* Popup Tình huống (Giống hệt ảnh) */
+        .action-popup { background: #78e08f; color: #000; border-radius: 8px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 2px solid #2ecc71; box-shadow: 0 4px 6px rgba(0,0,0,0.3); min-height: 120px; }
+        .player-col { width: 30%; text-align: center; font-size: 13px; }
+        .player-col strong { display: block; font-size: 15px; margin-bottom: 5px; }
+        .action-center { width: 40%; text-align: center; }
+        .action-title { font-weight: bold; font-size: 16px; margin-bottom: 10px; }
+        .action-percent { font-size: 36px; font-weight: bold; color: #000; }
+        .action-desc { font-size: 12px; color: #333; font-weight: bold; }
+
+        /* Khung bình luận */
+        #match-log { background: rgba(0,0,0,0.6); padding: 15px; border-radius: 5px; height: 150px; overflow-y: auto; font-size: 14px; line-height: 1.6; }
+        .text-blue { color: #3498db; } .text-red { color: #e74c3c; } .text-green { color: #2ecc71; font-weight: bold; } .text-yellow { color: #f1c40f; }
+        
+        .btn-play { display: block; width: 100%; padding: 15px; background: #e67e22; color: white; border: none; font-size: 18px; font-weight: bold; border-radius: 5px; cursor: pointer; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
+    <button class="btn-play" onclick="startMatch()">BẮT ĐẦU TRẬN ĐẤU</button>
+
     <div class="container">
-        <h2 class="header">⚽ Mô phỏng Trận đấu (Match Engine)</h2>
-        <button class="btn-play" onclick="startMatch()">BẤM ĐỂ ĐÁ!</button>
-        
+        <div class="scoreboard">
+            <div class="team-name" id="ui-home-name">Nantes</div>
+            <div class="score-center">
+                <div class="time" id="ui-time">00:00</div>
+                <div class="score"><span id="ui-home-score">0</span> : <span id="ui-away-score">0</span></div>
+            </div>
+            <div class="team-name" id="ui-away-name">Genk.vn</div>
+        </div>
+
+        <div class="morale-container">
+            <div class="morale-bar morale-red" id="ui-home-morale">Tinh thần thi đấu: 338</div>
+            <div class="morale-bar morale-blue" id="ui-away-morale">Tinh thần thi đấu: 498</div>
+        </div>
+
+        <div class="action-popup" id="ui-action-popup" style="visibility: hidden;">
+            </div>
+
         <div id="match-log">
-            <i>Bình luận viên đang chờ trận đấu bắt đầu...</i>
+            <i>Sân vận động đã chật kín khán giả...</i>
         </div>
     </div>
 

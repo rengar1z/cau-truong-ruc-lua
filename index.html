@@ -24,9 +24,34 @@ HTML
         .penalty-box.right { right: 0; border-right: none; }
 
         /* CẦU THỦ & BÓNG */
-        .dot { position: absolute; width: 24px; height: 24px; border-radius: 50%; text-align: center; line-height: 24px; font-size: 10px; font-weight: bold; color: white; border: 2px solid #fff; transition: all 1s ease-in-out; transform: translate(-50%, -50%); z-index: 2; }
-        .dot.red { background: #e74c3c; } /* Đội nhà */
-        .dot.blue { background: #2980b9; } /* Đội khách */
+        /* Khung chứa cầu thủ (Thay cho chấm tròn cũ) */
+        .player-icon { 
+            position: absolute; 
+            width: 40px; /* Chỉnh to nhỏ tùy size icon của bạn */
+            height: 40px; 
+            transition: all 1.5s linear; 
+            transform: translate(-50%, -50%); 
+            z-index: 2; 
+        }
+        
+        /* Hiển thị hình ảnh cầu thủ */
+        .player-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Giúp ảnh không bị méo */
+        }
+        
+        /* Thẻ tên cầu thủ */
+        .name-tag { 
+            position: absolute; 
+            top: -15px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            color: #fff; 
+            font-size: 11px; 
+            white-space: nowrap; 
+            text-shadow: 1px 1px 2px #000; 
+        }
         .name-tag { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); color: #fff; font-size: 11px; white-space: nowrap; text-shadow: 1px 1px 2px #000; }
         #ball { position: absolute; width: 16px; height: 16px; background: #fff; border-radius: 50%; border: 1px solid #000; transition: all 0.5s ease; transform: translate(-50%, -50%); z-index: 1; }
 
@@ -58,18 +83,29 @@ HTML
         </div>
 
         <div id="pitch">
-            <div class="center-line"></div>
-            <div class="center-circle"></div>
-            <div class="penalty-box left"></div>
-            <div class="penalty-box right"></div>
-
-            <div class="dot red" id="ui-atk"><span class="name-tag" id="name-atk"></span>10</div>
-            <div class="dot blue" id="ui-def"><span class="name-tag" id="name-def"></span>4</div>
-            <div class="dot blue" id="ui-gk"><span class="name-tag" id="name-gk"></span>1</div>
-            <div id="ball"></div>
-
-            <div class="action-popup" id="ui-action-popup"></div>
+        <div class="center-line"></div>
+        <div class="center-circle"></div>
+        <div class="penalty-box left"></div>
+        <div class="penalty-box right"></div>
+    
+        <div class="player-icon" id="ui-atk">
+            <span class="name-tag" id="name-atk"></span>
+            <img id="img-atk" src="images/chay.gif" alt="atk">
         </div>
+    
+        <div class="player-icon" id="ui-def">
+            <span class="name-tag" id="name-def"></span>
+            <img id="img-def" src="images/chay.gif" alt="def">
+        </div>
+    
+        <div class="player-icon" id="ui-gk">
+            <span class="name-tag" id="name-gk"></span>
+            <img id="img-gk" src="images/dung_im.png" alt="gk">
+        </div>
+        
+        <div id="ball"></div>
+        <div class="action-popup" id="ui-action-popup"></div>
+    </div>
 
         <div id="match-log"></div>
     </div>

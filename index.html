@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cầu Trường Rực Lửa - Thẻ Cầu Thủ</title>
+    <style>
+        body { font-family: Tahoma, Arial, sans-serif; background-color: #2c3e50; color: #333; padding: 20px; }
+        
+        .player-card {
+            background: #fff;
+            width: 600px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            display: flex;
+            padding: 20px;
+            margin: 0 auto;
+        }
+
+        /* Cột bên trái: Ảnh và thông tin */
+        .info-col { width: 35%; text-align: center; border-right: 2px solid #eee; padding-right: 15px; }
+        .avatar { width: 120px; height: 120px; background-color: #ddd; border-radius: 50%; margin: 0 auto 10px; border: 3px solid #f39c12; }
+        .name { color: #d35400; font-size: 20px; font-weight: bold; margin-bottom: 5px; }
+        .stars { color: #8e44ad; font-size: 18px; margin-bottom: 15px; }
+        .resource-box { background: #f8f9fa; padding: 10px; border-radius: 5px; font-size: 14px; text-align: left; }
+        .resource-box span { font-weight: bold; color: #2980b9; }
+
+        /* Cột bên phải: Bảng chỉ số */
+        .stats-col { width: 65%; padding-left: 20px; }
+        .stat-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
+        .stat-name { width: 80px; font-weight: bold; color: #555; }
+        .stat-bar-bg { flex-grow: 1; background: #eee; height: 10px; margin: 0 10px; border-radius: 5px; overflow: hidden; position: relative; }
+        .stat-bar-fill { background: #2ecc71; height: 100%; width: 0%; transition: width 0.3s; }
+        .stat-value { width: 40px; text-align: right; font-weight: bold; color: #2980b9; }
+        
+        /* Nút cộng điểm */
+        .btn-train { background: #3498db; color: white; border: none; border-radius: 3px; padding: 2px 8px; cursor: pointer; margin-left: 10px; font-weight: bold; }
+        .btn-train:hover { background: #2980b9; }
+        .btn-train:disabled { background: #bdc3c7; cursor: not-allowed; }
+
+    </style>
+</head>
+<body>
+
+    <div class="player-card">
+        <div class="info-col">
+            <div class="avatar">
+                </div>
+            <div class="name" id="ui-name">Ibrahimovic</div>
+            <div class="stars" id="ui-stars">★★★★</div>
+            
+            <div class="resource-box">
+                <p>Điểm huấn luyện: <span id="ui-train-points">0</span></p>
+                <p>Thực lực: <span id="ui-total-power">0</span></p>
+            </div>
+        </div>
+
+        <div class="stats-col" id="ui-stats-container">
+            </div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>

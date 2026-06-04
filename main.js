@@ -1,207 +1,188 @@
-// ==========================================
-// 1. KHUÔN CẤU TRÚC DỮ LIỆU CẦU THỦ & ĐỘI BÓNG
-// ==========================================
 class Player {
     constructor(name, position, stats) {
         this.name = name;
         this.position = position;
-        
-        // 19 chỉ số chuẩn
-        this.stats = {
-            tocDo: stats.tocDo || 10, sucBat: stats.sucBat || 10, theLuc: stats.theLuc || 10,
-            sucBen: stats.sucBen || 10, sut: stats.sut || 10, reDat: stats.reDat || 10,
-            chuyen: stats.chuyen || 10, danhDau: stats.danhDau || 10, doatBong: stats.doatBong || 10,
-            xoacBong: stats.xoacBong || 10, chuyenDai: stats.chuyenDai || 10, sutXa: stats.sutXa || 10,
-            phatDen: stats.phatDen || 10, phatGoc: stats.phatGoc || 10, daPhat: stats.daPhat || 10,
-            butPhat: stats.butPhat || 10, damBong: stats.damBong || 10, khongChien: stats.khongChien || 10,
-            cuuBong: stats.cuuBong || 10
-        };
+        this.stats = stats;
     }
 }
 
 class Team {
-    constructor(name, morale, forwards, midfielders, defenders, goalkeeper) {
+    constructor(id, name, color, morale, fw, mf, df, gk) {
+        this.id = id;
         this.name = name;
-        this.morale = morale; // Tinh thần
-        this.fw = forwards;   // Mảng Tiền đạo
-        this.mf = midfielders; // Mảng Tiền vệ
-        this.df = defenders;   // Mảng Hậu vệ
-        this.gk = goalkeeper;  // 1 Thủ môn
+        this.color = color; // Màu áo hiển thị trên sân 2D (ví dụ: #3498db cho Xanh)
+        this.morale = morale;
+        this.fw = fw; this.mf = mf; this.df = df; this.gk = gk;
         this.score = 0;
     }
-
-    // Hàm tự động bốc 1 cầu thủ ngẫu nhiên trong tuyến để tham gia pha bóng
-    getRandomPlayer(role) {
-        const list = this[role];
-        return list[Math.floor(Math.random() * list.length)];
-    }
+    getRandomPlayer(role) { return this[role][Math.floor(Math.random() * this[role].length)]; }
 }
 
-// ==========================================
-// 2. KHỞI TẠO ĐỘI HÌNH ĐẦY ĐỦ 2 BÊN
-// ==========================================
-// Đội Nhà: Nantes
-const teamHome = new Team("Nantes", 338, 
-    // Tiền đạo (FW)
-    [new Player("Djordjevic", "T.Đạo", { sut: 624, sutXa: 558, tocDo: 500 }), new Player("Bangoura", "T.Đạo", { sut: 580, sutXa: 450, tocDo: 610 })],
-    // Tiền vệ (MF)
+// KHỞI TẠO ĐỘI HÌNH
+const teamHome = new Team("home", "Nantes", "#3498db", 338, 
+    [new Player("Djordjevic", "T.Đạo", { sut: 624, sutXa: 558, tocDo: 500 })],
     [new Player("Freitas", "T.Vệ", { chuyen: 538, reDat: 604, tocDo: 624 }), new Player("Veretout", "T.Vệ", { chuyen: 600, reDat: 550, tocDo: 480 })],
-    // Hậu vệ (DF)
-    [new Player("Cissokho", "H.Vệ", { xoacBong: 550, doatBong: 520, tocDo: 580 }), new Player("Djilobodji", "Tr.Vệ", { xoacBong: 610, doatBong: 630, tocDo: 450 })],
-    // Thủ môn (GK)
+    [new Player("Cissokho", "H.Vệ", { xoacBong: 550, doatBong: 520 }), new Player("Djilobodji", "Tr.Vệ", { xoacBong: 610, doatBong: 630 })],
     new Player("Riou", "T.Môn", { cuuBong: 580, sucBat: 550 })
 );
 
-// Đội Khách: Genk.vn
-const teamAway = new Team("Genk.vn", 498, 
-    // Tiền đạo (FW)
+const teamAway = new Team("away", "Genk.vn", "#e74c3c", 498, 
     [new Player("Falcao", "T.Đạo", { sut: 680, sutXa: 600, tocDo: 550 })],
-    // Tiền vệ (MF)
     [new Player("Figo", "T.Vệ", { chuyen: 650, reDat: 620, tocDo: 580 })],
-    // Hậu vệ (DF)
-    [new Player("Kakadu", "Tr.Vệ", { xoacBong: 650, doatBong: 610, tocDo: 500 }), new Player("Ramos", "Tr.Vệ", { xoacBong: 700, doatBong: 680, tocDo: 520 })],
-    // Thủ môn (GK)
+    [new Player("Kakadu", "Tr.Vệ", { xoacBong: 650, doatBong: 610 }), new Player("Ramos", "Tr.Vệ", { xoacBong: 700, doatBong: 680 })],
     new Player("GK NPC", "T.Môn", { cuuBong: 630, sucBat: 600 })
 );
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
-// ==========================================
-// 3. LUỒNG TRẬN ĐẤU (CÓ LUÂN CHUYỂN BÓNG)
-// ==========================================
 async function startMatch() {
     const btnPlay = document.getElementById("btn-start");
     btnPlay.disabled = true;
 
-    // Cập nhật giao diện Scoreboard
-    document.getElementById("ui-home-name").innerText = teamHome.name;
-    document.getElementById("ui-away-name").innerText = teamAway.name;
-    document.getElementById("ui-home-morale").innerText = `Tinh thần thi đấu: ${teamHome.morale}`;
-    document.getElementById("ui-away-morale").innerText = `Tinh thần thi đấu: ${teamAway.morale}`;
-    
+    const atkDot = document.getElementById("ui-atk");
+    const defDot = document.getElementById("ui-def");
+    const gkDot = document.getElementById("ui-gk");
+    const ball = document.getElementById("ball");
+    const popup = document.getElementById("ui-action-popup");
     const logBox = document.getElementById("match-log");
-    const popupBox = document.getElementById("ui-action-popup");
+
+    logBox.innerHTML = `<p class="text-yellow">▶ TRẬN ĐẤU BẮT ĐẦU!</p>`;
+    teamHome.score = 0; teamAway.score = 0;
     
-    teamHome.score = 0;
-    teamAway.score = 0;
-    document.getElementById("ui-home-score").innerText = 0;
-    document.getElementById("ui-away-score").innerText = 0;
-
-    logBox.innerHTML = `<p class="text-yellow">▶ TRỌNG TÀI THỔI CÒI BẮT ĐẦU TRẬN ĐẤU!</p>`;
-    popupBox.style.visibility = "hidden";
-
     // Gán quyền kiểm soát bóng ban đầu
     let attackingTeam = teamHome;
     let defendingTeam = teamAway;
 
-    // Hàm đảo ngược quyền kiểm soát bóng
-    const swapPossession = () => {
-        let temp = attackingTeam;
-        attackingTeam = defendingTeam;
-        defendingTeam = temp;
-    };
-
-    // CHẠY VÒNG LẶP 90 PHÚT
-    for (let minute = 5; minute <= 90; minute += Math.floor(Math.random() * 10 + 5)) {
+    // VÒNG LẶP THỜI GIAN THỰC
+    for (let minute = 5; minute <= 90; minute += Math.floor(Math.random()*10 + 5)) {
         document.getElementById("ui-time").innerText = `${minute < 10 ? '0'+minute : minute}:00`;
-        
-        // Chọn ngẫu nhiên cầu thủ của 2 đội cho pha bóng này
+        popup.style.visibility = "hidden";
+
+        // Bốc cầu thủ ngẫu nhiên từ mảng
         let atkMF = attackingTeam.getRandomPlayer('mf');
         let defDF = defendingTeam.getRandomPlayer('df');
+        let gk = defendingTeam.gk;
 
-        logBox.innerHTML += `<p><strong>⏱ ${minute}':</strong> Bóng trong chân <span class="${attackingTeam === teamHome ? 'text-blue' : 'text-red'}">${atkMF.name} (${attackingTeam.name})</span>...</p>`;
+        // Cập nhật tên và MÀU ÁO trên sân cỏ
+        document.getElementById("name-atk").innerText = atkMF.name;
+        atkDot.style.backgroundColor = attackingTeam.color; // Đổi màu chấm Tấn công
+        
+        document.getElementById("name-def").innerText = defDF.name;
+        defDot.style.backgroundColor = defendingTeam.color; // Đổi màu chấm Phòng ngự
+        
+        document.getElementById("name-gk").innerText = gk.name;
+        gkDot.style.backgroundColor = defendingTeam.color; // Thủ môn cùng màu Hậu vệ
+
+        // --- SETUP VỊ TRÍ XUẤT PHÁT (Highlight luôn từ Trái -> Phải) ---
+        atkDot.style.transition = "none"; defDot.style.transition = "none"; gkDot.style.transition = "none"; ball.style.transition = "none";
+        atkDot.style.left = "20%"; atkDot.style.top = "60%";
+        defDot.style.left = "60%"; defDot.style.top = "50%";
+        gkDot.style.left = "95%"; gkDot.style.top = "50%";
+        ball.style.left = "23%"; ball.style.top = "60%";
+        
+        await delay(100);
+
+        let teamColorClass = attackingTeam.id === 'home' ? 'text-blue' : 'text-red';
+        logBox.innerHTML += `<p>⏱ Phút ${minute}: Bóng trong chân <span class="${teamColorClass}">${atkMF.name} (${attackingTeam.name})</span>...</p>`;
         logBox.scrollTop = logBox.scrollHeight;
-        await delay(1000);
 
-        // --- BƯỚC 1: TRANH CHẤP QUA NGƯỜI ---
+        // --- DI CHUYỂN TRANH CHẤP ---
+        atkDot.style.transition = "all 1.5s linear"; defDot.style.transition = "all 1.5s linear"; ball.style.transition = "all 1.5s linear";
+        atkDot.style.left = "40%"; atkDot.style.top = "50%";
+        defDot.style.left = "45%"; defDot.style.top = "50%";
+        ball.style.left = "42%"; ball.style.top = "50%";
+        
+        await delay(1500);
+
+        // HIỆN POPUP TÍNH %
         let atkStat = atkMF.stats.reDat + atkMF.stats.tocDo;
         let defStat = defDF.stats.xoacBong + defDF.stats.doatBong;
         let winChance = Math.floor((atkStat / (atkStat + defStat)) * 100); 
 
-        popupBox.innerHTML = `
-            <div class="player-col">
-                <strong>${atkMF.name}</strong>
-                Vị trí: ${atkMF.position}<br>
-                Rê dắt: ${atkMF.stats.reDat}<br>Tốc độ: ${atkMF.stats.tocDo}
-            </div>
+        popup.innerHTML = `
+            <div class="player-col"><strong>${atkMF.name}</strong>Rê dắt + Tốc độ</div>
             <div class="action-center">
-                <div class="action-title">Lừa Bóng</div>
+                <div class="action-title">Đối Mặt</div>
                 <div class="action-percent">${winChance}%</div>
             </div>
-            <div class="player-col">
-                <strong>${defDF.name}</strong>
-                Vị trí: ${defDF.position}<br>
-                Xoạc bóng: ${defDF.stats.xoacBong}<br>Đoạt bóng: ${defDF.stats.doatBong}
-            </div>
+            <div class="player-col"><strong>${defDF.name}</strong>Xoạc + Đoạt bóng</div>
         `;
-        popupBox.style.visibility = "visible";
+        popup.style.visibility = "visible";
         await delay(2000); 
-        popupBox.style.visibility = "hidden";
+        popup.style.visibility = "hidden";
 
         let roll = Math.floor(Math.random() * 100) + 1;
         
         if (roll <= winChance) {
-            logBox.innerHTML += `<p>🔥 ${atkMF.name} lừa bóng qua ${defDF.name} thành công! Tổ chức tấn công nhanh!</p>`;
-            logBox.scrollTop = logBox.scrollHeight;
-            await delay(1000);
-
-            // --- BƯỚC 2: SÚT BÓNG ĐỐI MẶT THỦ MÔN ---
+            // QUA NGƯỜI THÀNH CÔNG -> ĐỔI NGƯỜI CHẠY THÀNH TIỀN ĐẠO
             let striker = attackingTeam.getRandomPlayer('fw');
-            let gk = defendingTeam.gk; // Lấy đúng Thủ môn của đội phòng ngự
+            document.getElementById("name-atk").innerText = striker.name;
+            logBox.innerHTML += `<p>🔥 ${atkMF.name} chuyền vượt tuyến cho ${striker.name} băng xuống!</p>`;
 
+            atkDot.style.left = "75%"; atkDot.style.top = "50%";
+            ball.style.left = "78%"; ball.style.top = "50%";
+            defDot.style.left = "45%"; // Hậu vệ bị rớt lại
+            
+            await delay(1500);
+
+            // TÍNH % SÚT BÓNG
             let shotStat = striker.stats.sut + striker.stats.sutXa;
             let saveStat = gk.stats.cuuBong + gk.stats.sucBat;
             let goalChance = Math.floor((shotStat / (shotStat + saveStat)) * 100);
 
-            popupBox.innerHTML = `
-                <div class="player-col">
-                    <strong>${striker.name}</strong>
-                    Vị trí: ${striker.position}<br>
-                    Sút: ${striker.stats.sut}<br>Sút xa: ${striker.stats.sutXa}
-                </div>
+            popup.innerHTML = `
+                <div class="player-col"><strong>${striker.name}</strong>Sút + Sút xa</div>
                 <div class="action-center">
-                    <div class="action-title">Cơ Hội Ghi Bàn</div>
+                    <div class="action-title">Dứt Điểm</div>
                     <div class="action-percent">${goalChance}%</div>
                 </div>
-                <div class="player-col">
-                    <strong>${gk.name}</strong>
-                    Vị trí: ${gk.position}<br>
-                    Cứu bóng: ${gk.stats.cuuBong}<br>Sức bật: ${gk.stats.sucBat}
-                </div>
+                <div class="player-col"><strong>${gk.name}</strong>Cứu bóng + Sức bật</div>
             `;
-            popupBox.style.visibility = "visible";
+            popup.style.visibility = "visible";
             await delay(2000);
-            popupBox.style.visibility = "hidden";
+            popup.style.visibility = "hidden";
 
             let shotRoll = Math.floor(Math.random() * 100) + 1;
+            
+            ball.style.transition = "all 0.4s ease-out"; 
+            gkDot.style.transition = "all 0.4s ease-out"; 
 
             if (shotRoll <= goalChance) {
+                // VÀO LƯỚI
+                ball.style.left = "100%"; ball.style.top = "50%";
+                gkDot.style.top = "70%"; // GK bay sai hướng
+                
                 attackingTeam.score++;
                 document.getElementById("ui-home-score").innerText = teamHome.score;
                 document.getElementById("ui-away-score").innerText = teamAway.score;
-                logBox.innerHTML += `<p class="text-green">⚽ VÀOOOOO!!! Bàn thắng quá đẹp của ${striker.name}!</p>`;
+                logBox.innerHTML += `<p class="text-green">⚽ VÀOOOOO!!! Bàn thắng cho ${attackingTeam.name}!</p>`;
                 
-                // Ghi bàn xong, đội bị thủng lưới được giao bóng
-                swapPossession();
+                // Đổi quyền cầm bóng cho đội bị thủng lưới
+                let temp = attackingTeam; attackingTeam = defendingTeam; defendingTeam = temp;
             } else {
-                logBox.innerHTML += `<p>🛡️ Không vào! ${gk.name} đổ người cản phá xuất sắc ôm gọn trái bóng.</p>`;
+                // TRƯỢT
+                ball.style.left = "92%"; ball.style.top = "50%";
+                gkDot.style.left = "92%"; gkDot.style.top = "50%";
+                logBox.innerHTML += `<p>🛡️ Không vào! ${gk.name} cản phá thành công ôm gọn bóng.</p>`;
                 
-                // Thủ môn bắt được bóng, phát lên phản công -> Đổi quyền kiểm soát
-                swapPossession();
+                // GK bắt được bóng -> Đổi quyền
+                let temp = attackingTeam; attackingTeam = defendingTeam; defendingTeam = temp;
             }
-        } else {
-            // THẤT BẠI TỪ PHA QUA NGƯỜI
-            logBox.innerHTML += `<p>❌ ${defDF.name} xoạc bóng chính xác đoạt lại quyền kiểm soát cho ${defendingTeam.name}!</p>`;
             
-            // Mất bóng -> Đổi quyền kiểm soát
-            swapPossession();
+        } else {
+            // THẤT BẠI TỪ PHA ĐỐI MẶT
+            logBox.innerHTML += `<p>❌ ${defDF.name} xoạc bóng chính xác đoạt lại quyền kiểm soát!</p>`;
+            ball.style.left = "48%"; ball.style.top = "50%"; // Bóng văng vào chân Hậu vệ
+            atkDot.style.left = "38%"; // Tiền đạo dội ngược lại
+            
+            // Mất bóng -> Đổi quyền
+            let temp = attackingTeam; attackingTeam = defendingTeam; defendingTeam = temp;
         }
         
         logBox.scrollTop = logBox.scrollHeight;
-        await delay(1500); 
+        await delay(2500); 
     }
 
-    // KẾT THÚC TRẬN
     document.getElementById("ui-time").innerText = "90:00";
     logBox.innerHTML += `<hr><p class="text-yellow">▶ HẾT GIỜ! TRẬN ĐẤU KẾT THÚC.</p>`;
     logBox.scrollTop = logBox.scrollHeight;

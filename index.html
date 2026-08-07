@@ -7,7 +7,6 @@
 </head>
 <body>
     <div id="game-container">
-        <!-- Bảng Tỷ Số -->
         <div id="scoreboard">
             <div class="team">
                 <h3>Đội Nhà (Đỏ)</h3>
@@ -22,13 +21,12 @@
             </div>
         </div>
 
-        <!-- Màn hình Sự kiện (Event Screen) -->
         <div id="event-screen">
             <h2 id="event-title">Chuẩn bị thi đấu</h2>
             <div id="duel-arena">
                 <div class="player-card attacker" id="attacker-card">
                     <h4 id="atk-name">Tiền đạo</h4>
-                    <p>Chỉ số: <span id="atk-stat">0</span></p>
+                    <p id="atk-stat-desc">Chỉ số: <span id="atk-stat">0</span></p>
                     <div class="awaken-fx" id="atk-awaken">THỨC TỈNH!</div>
                 </div>
                 
@@ -39,22 +37,19 @@
 
                 <div class="player-card defender" id="defender-card">
                     <h4 id="def-name">Hậu vệ/Thủ môn</h4>
-                    <p>Chỉ số: <span id="def-stat">0</span></p>
+                    <p id="def-stat-desc">Chỉ số: <span id="def-stat">0</span></p>
                     <div class="awaken-fx" id="def-awaken">THỨC TỈNH!</div>
                 </div>
             </div>
             
-            <!-- Hộp Thoại Bình Luận (Log) -->
             <div id="commentary-box">
                 Đang kết nối tới máy chủ trận đấu...
             </div>
         </div>
 
-        <!-- Nút Bắt Đầu (Sẽ bị khóa cho đến khi Firebase tải xong dữ liệu) -->
         <button id="btn-start" disabled>Đang tải dữ liệu Firebase...</button>
     </div>
     
-    <!-- Khai báo type="module" để dùng được import của Firebase -->
     <script type="module" src="game.js"></script>
 </body>
 </html>

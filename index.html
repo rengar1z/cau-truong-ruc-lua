@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Web Football Game</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Firebase SDK (Thêm script của bạn vào đây sau) -->
+</head>
+<body>
+    <div id="game-container">
+        <!-- Bảng Tỷ Số -->
+        <div id="scoreboard">
+            <div class="team">
+                <h3>Đội Nhà (Đỏ)</h3>
+                <span id="score-home">0</span>
+            </div>
+            <div class="timer">
+                <span id="match-time">00:00</span>
+            </div>
+            <div class="team">
+                <span id="score-away">0</span>
+                <h3>Đội Khách (Xanh)</h3>
+            </div>
+        </div>
+
+        <!-- Màn hình Sự kiện (Event Screen) -->
+        <div id="event-screen">
+            <h2 id="event-title">Trận đấu bắt đầu!</h2>
+            <div id="duel-arena">
+                <div class="player-card attacker" id="attacker-card">
+                    <h4 id="atk-name">Tiền đạo</h4>
+                    <p>Chỉ số: <span id="atk-stat">0</span></p>
+                    <div class="awaken-fx" id="atk-awaken">THỨC TỈNH!</div>
+                </div>
+                
+                <div class="win-chance">
+                    <p>Cơ hội</p>
+                    <h1 id="win-prob">50%</h1>
+                </div>
+
+                <div class="player-card defender" id="defender-card">
+                    <h4 id="def-name">Hậu vệ</h4>
+                    <p>Chỉ số: <span id="def-stat">0</span></p>
+                    <div class="awaken-fx" id="def-awaken">THỨC TỈNH!</div>
+                </div>
+            </div>
+            
+            <!-- Hộp Thoại Bình Luận (Log) -->
+            <div id="commentary-box">
+                Hai bên đang thăm dò lẫn nhau...
+            </div>
+        </div>
+
+        <button id="btn-next-event" onclick="triggerRandomEvent()">Tạo Sự Kiện Tiếp Theo</button>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>

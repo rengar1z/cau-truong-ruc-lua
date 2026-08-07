@@ -2,11 +2,12 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Web Football Game</title>
+    <title>Web Football Game - AI Structure</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="game-container">
+        <!-- Bảng Tỷ Số -->
         <div id="scoreboard">
             <div class="team">
                 <h3>Đội Nhà (Đỏ)</h3>
@@ -21,22 +22,29 @@
             </div>
         </div>
 
+        <!-- Màn hình Sự kiện -->
         <div id="event-screen">
+            <!-- Hiển thị Trạng thái AI -->
+            <div id="ai-status">
+                <span id="possession-info">Bóng chưa lăn</span> | Khu vực: <span id="zone-info">Giữa sân</span>
+            </div>
+            
             <h2 id="event-title">Chuẩn bị thi đấu</h2>
+            
             <div id="duel-arena">
                 <div class="player-card attacker" id="attacker-card">
-                    <h4 id="atk-name">Tiền đạo</h4>
+                    <h4 id="atk-name">Cầu thủ Tấn công</h4>
                     <p id="atk-stat-desc">Chỉ số: <span id="atk-stat">0</span></p>
                     <div class="awaken-fx" id="atk-awaken">THỨC TỈNH!</div>
                 </div>
                 
                 <div class="win-chance">
-                    <p>Cơ hội</p>
+                    <p>Hành động</p>
                     <h1 id="win-prob">--%</h1>
                 </div>
 
                 <div class="player-card defender" id="defender-card">
-                    <h4 id="def-name">Hậu vệ/Thủ môn</h4>
+                    <h4 id="def-name">Cầu thủ Phòng thủ</h4>
                     <p id="def-stat-desc">Chỉ số: <span id="def-stat">0</span></p>
                     <div class="awaken-fx" id="def-awaken">THỨC TỈNH!</div>
                 </div>

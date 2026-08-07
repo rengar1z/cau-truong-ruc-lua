@@ -2,13 +2,28 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebas
 import { getDatabase, ref, get, set, child } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
 // --- CẤU HÌNH FIREBASE ---
+// NHỚ DÁN CONFIG ĐẦY ĐỦ CỦA BẠN VÀO ĐÂY!
 const firebaseConfig = {
-    // URL Realtime Database của bạn
-    databaseURL: "https://cau-truong-ruc-lua-default-rtdb.asia-southeast1.firebasedatabase.app"
+    apiKey: "DÁN_API_KEY_CỦA_BẠN_VÀO_ĐÂY",
+    authDomain: "cau-truong-ruc-lua.firebaseapp.com",
+    databaseURL: "https://cau-truong-ruc-lua-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "cau-truong-ruc-lua",
+    storageBucket: "cau-truong-ruc-lua.appspot.com",
+    messagingSenderId: "DÁN_SỐ_CỦA_BẠN_VÀO_ĐÂY",
+    appId: "DÁN_APP_ID_CỦA_BẠN_VÀO_ĐÂY"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+
+// --- TỪ ĐIỂN DỊCH CHỈ SỐ RA TIẾNG VIỆT ĐỂ BÌNH LUẬN ---
+const statNamesVN = {
+    tocDo: "Tốc độ", sucBat: "Sức bật", theLuc: "Thể lực",
+    sut: "Sút", reBong: "Rê bóng", chuyen: "Chuyền",
+    danhDau: "Đánh đầu", doatBong: "Đoạt bóng", xoac: "Xoạc",
+    chuyenDai: "Chuyền dài", sutXa: "Sút xa", phatGoc: "Phạt góc",
+    batBong: "Bắt bóng", phanXa: "Phản xạ"
+};
 
 // --- CLASS CẦU THỦ ---
 class Player {
@@ -19,14 +34,14 @@ class Player {
         this.awakeningGauge = 0;
     }
 
-    getStat(statName) {
-        let baseStat = this.stats[statName] || 500;
+    getStat(statKey) {
+        let baseStat = this.stats[statKey] || 400; // Mặc định 400 nếu chưa set
         if (this.awakeningGauge >= 100) {
             this.awakeningGauge = 0; 
-            return { value: Math.round(baseStat * 1.5), isAwakened: true };
+            return { value: Math.round(baseStat * 1.5), isAwakened: true, key: statKey };
         }
         this.awakeningGauge += 25;
-        return { value: baseStat, isAwakened: false };
+        return { value: baseStat, isAwakened: false, key: statKey };
     }
 }
 
@@ -37,18 +52,43 @@ let time = 0;
 let homeScore = 0;
 let awayScore = 0;
 
-// --- HÀM 1: ĐẨY DỮ LIỆU MẪU LÊN FIREBASE (Nếu DB đang rỗng) ---
+// --- HÀM 1: ĐẨY DỮ LIỆU MẪU CÓ ĐỦ 12 CHỈ SỐ LÊN FIREBASE ---
 async function seedDatabaseIfEmpty() {
     const dbRef = ref(db);
     const snapshot = await get(child(dbRef, "players"));
     
     if (!snapshot.exists()) {
-        console.log("Database rỗng, đang tạo dữ liệu mẫu...");
+        console.log("Database rỗng, đang tạo dữ liệu 12 chỉ số...");
         const dummyPlayers = {
-            "p_falcao": { name: "Falcao", type: "FW", stats: { sut: 602, reDat: 504, tocDo: 486 } },
-            "p_cr7": { name: "CR7", type: "FW", stats: { sut: 624, reDat: 604, tocDo: 624 } },
-            "p_chiellini": { name: "Chiellini", type: "DF", stats: { xoac: 550, doatBong: 520, theLuc: 500 } },
-            "p_buffon": { name: "Buffon", type: "GK", stats: { batBong: 600, phanXa: 650 } }
+            "p_falcao": { 
+                name: "Falcao", type: "FW", 
+                stats: { 
+                    tocDo: 486, sucBat: 538, theLuc: 538, sut: 602, reBong: 504, chuyen: 486, 
+                    danhDau: 538, doatBong: 279, xoac: 225, chuyenDai: 522, sutXa: 504, phatGoc: 333 
+                } 
+            },
+            "p_cr7": { 
+                name: "CR7", type: "FW", 
+                stats: { 
+                    tocDo: 624, sucBat: 459, theLuc: 522, sut: 624, reBong: 604, chuyen: 538, 
+                    danhDau: 468, doatBong: 324, xoac: 298, chuyenDai: 396, sutXa: 558, phatGoc: 302 
+                } 
+            },
+            "p_chiellini": { 
+                name: "Chiellini", type: "DF", 
+                stats: { 
+                    tocDo: 400, sucBat: 500, theLuc: 550, sut: 200, reBong: 300, chuyen: 450, 
+                    danhDau: 580, doatBong: 620, xoac: 650, chuyenDai: 400, sutXa: 150, phatGoc: 100 
+                } 
+            },
+            "p_buffon": { 
+                name: "Buffon", type: "GK", 
+                stats: { 
+                    tocDo: 300, sucBat: 600, theLuc: 500, sut: 100, reBong: 150, chuyen: 400, 
+                    danhDau: 200, doatBong: 100, xoac: 100, chuyenDai: 500, sutXa: 50, phatGoc: 50,
+                    batBong: 680, phanXa: 700 
+                } 
+            }
         };
         await set(ref(db, "players"), dummyPlayers);
         return dummyPlayers;
@@ -60,21 +100,18 @@ async function seedDatabaseIfEmpty() {
 async function initGame() {
     try {
         const rawData = await seedDatabaseIfEmpty();
-        
-        // Chuyển data JSON thành object Player
         for (const key in rawData) {
             let p = rawData[key];
             playersData[key] = new Player(p.name, p.type, p.stats);
         }
 
-        document.getElementById("commentary-box").innerText = "Đã tải xong dữ liệu cầu thủ. Sẵn sàng!";
+        document.getElementById("commentary-box").innerText = "Đã nạp thành công bộ 12 chỉ số. Sẵn sàng!";
         const btnStart = document.getElementById("btn-start");
         btnStart.innerText = "BẮT ĐẦU TRẬN ĐẤU";
         btnStart.disabled = false;
         btnStart.addEventListener("click", startMatch);
-
     } catch (error) {
-        console.error("Lỗi khởi tạo Firebase: ", error);
+        console.error(error);
         document.getElementById("commentary-box").innerText = "Lỗi kết nối máy chủ!";
     }
 }
@@ -86,7 +123,7 @@ function startMatch() {
     document.getElementById("commentary-box").innerText = "Trọng tài nổi hồi còi khai cuộc!";
     
     matchInterval = setInterval(() => {
-        time += 3; // Mỗi 1.5 giây ngoài đời = 3 phút trong game
+        time += 3; 
         
         if (time > 90) {
             endMatch();
@@ -94,7 +131,6 @@ function startMatch() {
         }
         document.getElementById("match-time").innerText = time + ":00";
 
-        // Tỷ lệ 40% có pha bóng nguy hiểm
         let hasEvent = Math.random() < 0.4; 
 
         if (hasEvent) {
@@ -103,65 +139,85 @@ function startMatch() {
             const idleComments = [
                 "Hai bên đang tranh chấp bóng quyết liệt ở giữa sân...",
                 "Đội nhà đang tổ chức đập nhả chậm rãi.",
-                "Một đường chuyền hỏng! Bóng lại thuộc về quyền kiểm soát của đối phương.",
-                "Cầu thủ hai bên đều rất thận trọng thăm dò lẫn nhau."
+                "Một đường chuyền dài vượt tuyến nhưng không thành công.",
+                "Cầu thủ hai bên đều rất thận trọng thăm dò lẫn nhau.",
+                "Trận đấu đang diễn ra với tốc độ khá chậm."
             ];
             document.getElementById("commentary-box").innerText = idleComments[Math.floor(Math.random() * idleComments.length)];
         }
     }, 1500);
 }
 
-// --- HÀM 4: XỬ LÝ SỰ KIỆN ĐỤNG ĐỘ ---
+// --- HÀM 4: XỬ LÝ SỰ KIỆN ĐỤNG ĐỘ ĐA DẠNG ---
 function triggerRandomEvent() {
-    const eventTypes = ["Cơ Hội Sút Gần", "Cơ Hội Rê Bóng Solo"];
-    const currentEvent = eventTypes[Math.floor(Math.random() * eventTypes.length)];
-    document.getElementById("event-title").innerText = currentEvent;
+    // 6 kịch bản đa dạng dựa trên 12 chỉ số
+    const events = [
+        { name: "Cơ Hội Sút Gần", atkStat: "sut", defStat: "phanXa", isVsGk: true },
+        { name: "Sút Xa Bất Ngờ", atkStat: "sutXa", defStat: "batBong", isVsGk: true },
+        { name: "Đánh Đầu Cận Thành", atkStat: "danhDau", defStat: "sucBat", isVsGk: true },
+        { name: "Cơ Hội Rê Bóng Solo", atkStat: "reBong", defStat: "xoac", isVsGk: false },
+        { name: "Đua Tốc Độ", atkStat: "tocDo", defStat: "tocDo", isVsGk: false },
+        { name: "Tranh Chấp Tay Đôi", atkStat: "theLuc", defStat: "doatBong", isVsGk: false }
+    ];
 
-    let attacker, defender, atkStatName, defStatName;
+    const currentEvent = events[Math.floor(Math.random() * events.length)];
+    document.getElementById("event-title").innerText = currentEvent.name;
 
-    if (currentEvent === "Cơ Hội Sút Gần") {
-        attacker = playersData["p_cr7"]; defStatName = "batBong";
-        defender = playersData["p_buffon"]; atkStatName = "sut";
+    const fwKeys = Object.keys(playersData).filter(k => playersData[k].type === "FW");
+    const dfKeys = Object.keys(playersData).filter(k => playersData[k].type === "DF");
+    const gkKeys = Object.keys(playersData).filter(k => playersData[k].type === "GK");
+
+    let attackerKey = fwKeys[Math.floor(Math.random() * fwKeys.length)] || Object.keys(playersData)[0];
+    let attacker = playersData[attackerKey];
+
+    let defenderKey;
+    if (currentEvent.isVsGk && gkKeys.length > 0) {
+        defenderKey = gkKeys[Math.floor(Math.random() * gkKeys.length)];
+    } else if (dfKeys.length > 0) {
+        defenderKey = dfKeys[Math.floor(Math.random() * dfKeys.length)];
     } else {
-        attacker = playersData["p_falcao"]; defStatName = "xoac";
-        defender = playersData["p_chiellini"]; atkStatName = "reDat";
+        defenderKey = Object.keys(playersData)[1];
     }
+    let defender = playersData[defenderKey];
 
-    let atkPower = attacker.getStat(atkStatName);
-    let defPower = defender.getStat(defStatName);
+    let atkPower = attacker.getStat(currentEvent.atkStat);
+    let defPower = defender.getStat(currentEvent.defStat);
 
     updateUI("atk", attacker.name, atkPower);
     updateUI("def", defender.name, defPower);
 
     let totalPower = atkPower.value + defPower.value;
-    let winProb = Math.round((atkPower.value / totalPower) * 100);
+    let winProb = totalPower > 0 ? Math.round((atkPower.value / totalPower) * 100) : 50;
     document.getElementById("win-prob").innerText = winProb + "%";
 
     let roll = Math.floor(Math.random() * 100);
     let logText = "";
 
     if (roll < winProb) {
-        if (currentEvent === "Cơ Hội Sút Gần") {
+        if (currentEvent.isVsGk) {
             homeScore++;
             document.getElementById("score-home").innerText = homeScore;
-            logText = `VÀOOOOO! ${attacker.name} tung cú sút tuyệt đẹp hạ gục ${defender.name}!`;
+            logText = `VÀOOOOO! ${attacker.name} chiến thắng ${defender.name} nhờ khả năng [${statNamesVN[atkPower.key]}] xuất thần!`;
         } else {
-            logText = `${attacker.name} dùng kỹ thuật loại bỏ ${defender.name} dễ dàng, mở ra khoảng trống!`;
+            logText = `Tuyệt vời! ${attacker.name} vượt qua ${defender.name} dễ dàng nhờ chỉ số [${statNamesVN[atkPower.key]}] vượt trội.`;
         }
     } else {
-        if (currentEvent === "Cơ Hội Sút Gần") {
-            logText = `KHÔNG VÀO! ${defender.name} bay người cản phá xuất thần cú sút của ${attacker.name}.`;
+        if (currentEvent.isVsGk) {
+            logText = `KHÔNG VÀO! ${defender.name} cứu thua xuất sắc bằng kỹ năng [${statNamesVN[defPower.key]}].`;
         } else {
-            logText = `${defender.name} đã chuồi bóng chính xác, chặn đứng pha đi bóng của ${attacker.name}.`;
+            logText = `${defender.name} đã dùng [${statNamesVN[defPower.key]}] chặn đứng pha tấn công của ${attacker.name}.`;
         }
     }
     document.getElementById("commentary-box").innerText = logText;
 }
 
-// --- HÀM 5: CẬP NHẬT UI ---
+// --- HÀM 5: CẬP NHẬT GIAO DIỆN CHỈ SỐ ---
 function updateUI(side, name, powerObj) {
     document.getElementById(`${side}-name`).innerText = name;
-    document.getElementById(`${side}-stat`).innerText = powerObj.value;
+    // Tự động thay đổi text hiển thị thành tên chỉ số tương ứng
+    const statNameVN = statNamesVN[powerObj.key] || powerObj.key;
+    document.getElementById(`${side}-stat-desc`).innerHTML = `${statNameVN}: <span id="${side}-stat">${powerObj.value}</span>`;
+    
     document.getElementById(`${side}-awaken`).style.display = powerObj.isAwakened ? "block" : "none";
 }
 
@@ -173,7 +229,4 @@ function endMatch() {
     document.getElementById("commentary-box").innerText = `Trận đấu kết thúc với tỷ số chung cuộc: ${homeScore} - ${awayScore}.`;
 }
 
-// --- CHẠY INIT KHI LOAD TRANG ---
-window.onload = () => {
-    initGame();
-};
+window.onload = () => { initGame(); };

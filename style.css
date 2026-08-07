@@ -1,88 +1,16 @@
-body { 
-    font-family: Arial, sans-serif; 
-    background-color: #2c3e50; 
-    color: white; 
-    display: flex; 
-    justify-content: center; 
-    padding: 20px;
-}
-#game-container { 
-    width: 800px; 
-    background: #27ae60; 
-    border: 5px solid #fff; 
-    border-radius: 10px; 
-    padding: 20px; 
-    box-shadow: 0 0 20px #000; 
-    text-align: center;
-}
-#scoreboard { 
-    display: flex; 
-    justify-content: space-between; 
-    background: rgba(0,0,0,0.7); 
-    padding: 10px 20px; 
-    border-radius: 5px; 
-    margin-bottom: 20px; 
-    font-size: 24px; 
-    font-weight: bold;
-}
-#duel-arena { 
-    display: flex; 
-    justify-content: space-around; 
-    align-items: center; 
-    background: rgba(0,0,0,0.5); 
-    padding: 20px; 
-    border-radius: 10px; 
-    min-height: 150px; 
-    margin-bottom: 20px;
-}
-.player-card { 
-    width: 150px; 
-    padding: 10px; 
-    border-radius: 5px; 
-    border: 2px solid #fff; 
-    position: relative;
-}
+body { font-family: Arial, sans-serif; background-color: #2c3e50; color: white; display: flex; justify-content: center; padding: 20px;}
+#game-container { width: 800px; background: #27ae60; border: 5px solid #fff; border-radius: 10px; padding: 20px; box-shadow: 0 0 20px #000; text-align: center;}
+#scoreboard { display: flex; justify-content: space-between; background: rgba(0,0,0,0.7); padding: 10px 20px; border-radius: 5px; margin-bottom: 20px; font-size: 24px; font-weight: bold;}
+#ai-status { background: #f1c40f; color: #000; padding: 5px; border-radius: 5px; font-weight: bold; margin-bottom: 10px; display: inline-block;}
+#duel-arena { display: flex; justify-content: space-around; align-items: center; background: rgba(0,0,0,0.5); padding: 20px; border-radius: 10px; min-height: 150px; margin-bottom: 20px;}
+.player-card { width: 150px; padding: 10px; border-radius: 5px; border: 2px solid #fff; position: relative;}
 .attacker { background: #c0392b; }
 .defender { background: #2980b9; }
-.win-chance h1 { 
-    color: #f1c40f; 
-    font-size: 40px; 
-    margin: 0;
-}
-#commentary-box { 
-    background: #fff; 
-    color: #000; 
-    padding: 15px; 
-    border-radius: 5px; 
-    min-height: 50px; 
-    font-weight: bold; 
-    margin-bottom: 20px;
-}
-button { 
-    padding: 10px 20px; 
-    font-size: 18px; 
-    cursor: pointer; 
-    background: #f39c12; 
-    border: none; 
-    font-weight: bold; 
-    border-radius: 5px;
-}
-button:hover:not(:disabled) { 
-    background: #e67e22; 
-}
-button:disabled {
-    background: #95a5a6;
-    cursor: not-allowed;
-}
-.awaken-fx { 
-    display: none; 
-    color: yellow; 
-    font-weight: bold; 
-    text-shadow: 0 0 5px red; 
-    animation: blink 0.5s infinite; 
-}
-@keyframes blink { 
-    0% { opacity: 1; } 
-    50% { opacity: 0; } 
-    100% { opacity: 1; } 
-}
+.win-chance p { margin: 0 0 5px 0; font-weight: bold; text-transform: uppercase; }
+.win-chance h1 { color: #f1c40f; font-size: 40px; margin: 0;}
+#commentary-box { background: #fff; color: #000; padding: 15px; border-radius: 5px; min-height: 60px; font-weight: bold; margin-bottom: 20px;}
+button { padding: 12px 24px; font-size: 20px; cursor: pointer; background: #f39c12; border: none; font-weight: bold; border-radius: 8px;}
+button:hover:not(:disabled) { background: #e67e22; }
+button:disabled { background: #95a5a6; cursor: not-allowed; }
+.awaken-fx { display: none; color: yellow; font-weight: bold; text-shadow: 0 0 5px red; animation: blink 0.5s infinite; }
+@keyframes blink { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }

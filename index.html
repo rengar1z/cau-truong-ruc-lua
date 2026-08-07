@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>Web Football Game</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Firebase SDK (Thêm script của bạn vào đây sau) -->
 </head>
 <body>
     <div id="game-container">
@@ -25,7 +24,7 @@
 
         <!-- Màn hình Sự kiện (Event Screen) -->
         <div id="event-screen">
-            <h2 id="event-title">Trận đấu bắt đầu!</h2>
+            <h2 id="event-title">Chuẩn bị thi đấu</h2>
             <div id="duel-arena">
                 <div class="player-card attacker" id="attacker-card">
                     <h4 id="atk-name">Tiền đạo</h4>
@@ -35,11 +34,11 @@
                 
                 <div class="win-chance">
                     <p>Cơ hội</p>
-                    <h1 id="win-prob">50%</h1>
+                    <h1 id="win-prob">--%</h1>
                 </div>
 
                 <div class="player-card defender" id="defender-card">
-                    <h4 id="def-name">Hậu vệ</h4>
+                    <h4 id="def-name">Hậu vệ/Thủ môn</h4>
                     <p>Chỉ số: <span id="def-stat">0</span></p>
                     <div class="awaken-fx" id="def-awaken">THỨC TỈNH!</div>
                 </div>
@@ -47,12 +46,15 @@
             
             <!-- Hộp Thoại Bình Luận (Log) -->
             <div id="commentary-box">
-                Hai bên đang thăm dò lẫn nhau...
+                Đang kết nối tới máy chủ trận đấu...
             </div>
         </div>
 
-        <button id="btn-next-event" onclick="triggerRandomEvent()">Tạo Sự Kiện Tiếp Theo</button>
+        <!-- Nút Bắt Đầu (Sẽ bị khóa cho đến khi Firebase tải xong dữ liệu) -->
+        <button id="btn-start" disabled>Đang tải dữ liệu Firebase...</button>
     </div>
-    <script src="game.js"></script>
+    
+    <!-- Khai báo type="module" để dùng được import của Firebase -->
+    <script type="module" src="game.js"></script>
 </body>
 </html>
